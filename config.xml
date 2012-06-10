@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets"
+        xmlns:rim="http://www.blackberry.com/ns/widgets"
+        version="1.0.0.0">  
+    <name>FreakOut</name>
+    <author>WTFTeam</author>
+    <description>Dont stop trying</description>
+    <icon src="images/icon.png"/>
+    <content src="index.html"/>
+    <feature id="blackberry.app"/>
+    <feature id="blackberry.ui.dialog.customAsk" />
+</widget>

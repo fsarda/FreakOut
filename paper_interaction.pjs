@@ -1,0 +1,383 @@
+
+var hitOptions = {
+    fill: true,
+    tolerance: 1
+};
+
+project.currentStyle = {
+    strokeColor: '#000000',
+    strokeWidth: 3
+
+};
+
+//var explodeSound = new Audio("sonidos/mp3/Bow_Fire_Arrow-Stephan_Schutze-2133929391.mp3");
+var explodeSound = "sonidos/mp3/bowfire.mp3";
+var initSound = "sonidos/mp3/ray.mp3";
+var endSound = "sonidos/mp3/buzzer.mp3";
+var shakeSound = "sonidos/mp3/metroid.mp3";
+var level = 2;
+var leveltime = 15*60;
+
+var colorSelected = undefined;
+var shapeSelected = undefined;
+var sizeSelected = undefined;
+var punto = 0;
+var playtime = 3600;
+var restartTime = 300;
+var addtime = 120;
+var segtime = 60;
+var shake = 2;
+var items = new Array();
+var figuresleft;
+
+var cuadrosArray = [];
+var colors = new Array('green', 'red', 'yellow','blueviolet','orange', 'darkcyan', 'fuchsia');
+var sizes = new Array(40,60,80);
+var sizesLabels = new Array("small","medium","large");
+var shapes = new Array(1,2,3);
+var shapesLabels = new Array("squares","circles","stars");
+var colorCount = new Array(0,0,0,0,0);
+var sizeCount = new Array(0,0,0);
+var shapesCount = new Array(0,0,0);
+
+function playSound(sound){
+ // alert(sound);
+ audio = new Audio(sound);
+ //audio.currentTime = 0;
+ audio.load();
+ audio.play();
+ return audio;
+}
+
+function randomXToY(minVal,maxVal,floatVal)
+{
+  var randVal = minVal+(Math.random()*(maxVal-minVal));
+  return typeof floatVal=='undefined'?Math.round(randVal):randVal.toFixed(floatVal);
+}
+
+function buscarCondicion(){
+
+
+  var colorTemp = randomXToY(0, level + 2);
+  var sizeTemp = randomXToY(0, sizes.length + 1);
+  var shapeTemp = randomXToY(0, shapes.length + 1);
+
+
+  sizeSelected = sizeTemp >= sizes.length? undefined: sizes[sizeTemp];
+
+  if(sizeSelected!=undefined && sizeCount[sizeTemp]==0){
+    sizeSelected = undefined;
+  }
+
+  colorSelected = colorTemp >= level ? undefined: colors[colorTemp];
+
+  if(colorSelected!=undefined && colorCount[colorTemp]==0){
+    colorSelected = undefined;
+  }
+
+  shapeSelected = shapeTemp >= shapes.length? undefined: shapes[shapeTemp];
+  if(shapeSelected!=undefined && shapesCount[shapeTemp]==0){
+    shapeSelected = undefined;
+  }
+
+  var mensaje = sizeSelected==undefined?'':sizesLabels[sizeTemp];
+  mensaje += colorSelected==undefined?'':' '+colorSelected;
+  mensaje += shapeSelected==undefined?'':' '+shapesLabels[shapeTemp];
+
+  var tmp = mensaje;
+
+  if(tmp.replace(/^\s+/g,'').replace(/\s+$/g,'').length == 0){
+     mensaje = 'get ALL the points!!! ';
+  }else{
+     mensaje ="Search for -> "+mensaje;
+  }
+
+  document.getElementById("search").innerHTML = mensaje;
+  document.getElementById("search").style.color = "greenyellow";
+  document.getElementById("search").style.fontSize = "18pt";
+
+
+}
+
+function create(shape, x, y, tam, color){
+
+         //alert("Creando "+shape+" --" + x+" "+y+" "+tam+" "+color);
+      switch(shape){
+        case 1:
+              var point = new Point(x, y);
+              //var size = new Size(tam, tam);
+              //var rectangle = new Rectangle(point, size);
+              //r = new Path.Rectangle(rectangle);
+              r = Path.RegularPolygon(point, 4, tam);
+              r.fillColor = color;
+              r.selectedColor = color;
+              r.tam = tam;
+              r.shape = 1;
+              items[items.length] = r;
+              break;
+        case 2:
+              var point = new Point(x, y);
+              r = new Path.Circle(point, tam);
+              r.fillColor = color;
+              r.selectedColor = color;
+              r.tam = tam;
+              r.shape = 2;
+              items[items.length] = r;
+             break;
+        case 3:
+             var point = new Point(x, y);
+              r = new Path.Star(point, 5, tam, tam - (tam/2));
+              r.fillColor = color;
+              r.selectedColor = color;
+              r.tam = tam;
+              r.shape = 3;
+              items[items.length] = r;
+             break;
+      }
+}
+
+
+function populate(cant){
+
+  var canvas = document.getElementById('paperInteraction');
+  for(var i=0; i<cant; i++){
+      var xr = randomXToY(0, canvas.width-10);
+      var xy = randomXToY(0, canvas.height-10);
+      var indColor = randomXToY(0, level-1);
+      var color = colors[indColor];
+      var indTam = randomXToY(0, sizes.length-1);
+      var tam =  sizes[indTam];
+      var indShape = randomXToY(0, shapes.length-1);
+      var shape  = shapes[indShape];
+
+      colorCount[indColor]++;
+      sizeCount[indTam]++;
+      shapesCount[indShape]++;
+
+      create(shape,xr,xy,tam,color);
+
+  }
+}
+
+
+function refresh(cant, nuevo){
+      var canvas = document.getElementById('paperInteraction');
+      var context = canvas.getContext('2d');
+      clearCanvas(context, canvas);
+      if(nuevo){
+         rellenar(cant);
+      }else{
+            populate(cant);
+      }
+}
+
+
+function init(cant) {
+  var temp = playSound(initSound);
+  punto = 0;
+  level = 2;
+  leveltime = 15*60;
+  playtime = 5400;
+  figuresleft = randomXToY(90, 160);
+  document.getElementById("puntos").innerHTML = figuresleft;
+  document.getElementById("timer").innerHTML = ( playtime / segtime ) + " segs";
+  document.getElementById("timer").style.color = 'white';
+  document.getElementById("timer").style.fontSize = '16pt';
+  refresh(cant, true);
+  temp.pause();
+
+
+
+}
+
+function rellenar(cant){
+  populate(cant);
+  buscarCondicion();
+}
+
+
+function sumarPunto(){
+  figuresleft--;
+  document.getElementById("puntos").innerHTML = figuresleft;
+
+};
+
+function onMouseUp(event) {
+    var hitResult = project.hitTest(event.point, hitOptions);
+    var remove = true;
+
+    if (hitResult && hitResult.item ) {
+
+       remove = remove && ((colorSelected!=undefined && hitResult.item.selectedColor==colorSelected) || colorSelected==undefined);
+       remove = remove && ((sizeSelected!=undefined && hitResult.item.tam==sizeSelected) || sizeSelected==undefined);
+       remove = remove && ((shapeSelected!=undefined && hitResult.item.shape==shapeSelected) || shapeSelected==undefined);
+
+       if(remove){
+         var temp = playSound(explodeSound);
+         hitResult.item.remove();
+         sumarPunto();
+         temp.pause();
+
+       }
+    }
+}
+
+function onMouseDrag(event) {
+    // Move the last segment point of the path to the
+    // current position of the mouse:
+    var hitResult = project.hitTest(event.point, { fill: true, tolerance: 5});
+    if (hitResult && hitResult.item ) {
+
+            create(hitResult.item.shape,event.point.x,event.point.y,hitResult.item.tam,hitResult.item.selectedColor);
+            hitResult.item.remove();
+    }
+
+}
+
+
+function clearCanvas(context, canvas) {
+
+  for(var k=items.length; k>=0;k--){
+          if(items[k]!=undefined){items[k].remove();}
+  }
+
+  items = new Array();
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  var w = canvas.width;
+  canvas.width = 1;
+  canvas.width = w;
+  colorCount = new Array(0,0,0,0,0);
+  sizeCount = new Array(0,0,0);
+  shapesCount = new Array(0,0,0);
+}
+function quitarEfecto(){
+     document.getElementById("search").style.color = "white";
+     document.getElementById("search").style.fontSize = "16pt";
+     document.getElementById("search").style.fontWeight = 'normal';
+
+}
+
+
+function customDialog() {
+  try {
+    var buttons = ["Yes", "Get me out of here!!"];
+    var res = blackberry.ui.dialog.customAsk("Do you wanna play again?", buttons, 0, true);
+
+    if(res){
+       blackberry.app.exit();
+    }else{
+          init(20);
+    }
+
+
+  } catch(e) {
+    alert("Exception in customDialog: " + e);
+  }
+}
+
+function onFrame(event) {
+
+  if(playtime==0 || figuresleft <= 0){
+     var temp = playSound(endSound);
+     var msg = "";
+
+    //Si gano
+    if(figuresleft == 0){
+       msg = "You won!!! Do you wanna play again?";
+    }else{
+       msg = "LOSERRRR!!! Do you wanna play again?";
+    }
+    temp.pause();
+    if(confirm(msg, "Game Over!!!!")){
+       init(20);
+    }else{
+       blackberry.app.exit();
+    };
+    //customDialog();
+    return;
+  }
+
+  playtime--;
+
+  if(playtime%segtime==0){
+     document.getElementById("timer").innerHTML = ( playtime / segtime ) + " segs";
+     shake=2;
+     if (playtime<600){
+         document.getElementById("timer").style.color = 'red';
+         document.getElementById("timer").style.fontSize = '20pt';
+     }
+
+  }
+
+  if(playtime%leveltime==0){
+     if(level<colors.length){level++;}
+
+  }
+
+//  setTimeout(actualizarTimer, 1000);
+
+  //Verificamos si hay que agregar
+  if(playtime%addtime==0){
+     quitarEfecto();
+     populate(2);
+
+  }
+
+  //Verificamos si hay que reiniciar condiciones
+  if(playtime%restartTime==0){
+     rellenar(2);
+  }
+
+}
+
+
+if (typeof window.DeviceMotionEvent != 'undefined') {
+  	// Shake sensitivity (a lower number is more)
+  	var sensitivity = 4;
+
+  	// Position variables
+  	var x1 = 0, y1 = 0, z1 = 0, x2 = 0, y2 = 0, z2 = 0;
+
+  	// Listen to motion events and update the position
+  	window.addEventListener('devicemotion', function (e) {
+  		x1 = e.accelerationIncludingGravity.x;
+  		y1 = e.accelerationIncludingGravity.y;
+  		z1 = e.accelerationIncludingGravity.z;
+  	}, false);
+
+  	// Periodically check the position and fire
+  	// if the change is greater than the sensitivity
+  	setInterval(function () {
+  		var change = Math.abs(x1-x2+y1-y2+z1-z2);
+
+  		if (change > sensitivity ) {
+                      shake--;
+                      if(shake==0){
+                        var temp = playSound(initSound);
+                     	refresh(20, false);
+                     	temp.pause();
+                      }
+
+  		}
+
+  		// Update new position
+  		x2 = x1;
+  		y2 = y1;
+  		z2 = z1;
+  	}, 200);
+}
+
+ /*
+window.addEventListener("devicemotion", function(event) {
+       shake--;
+       if(shake==0){
+         alert("epa");
+       }
+
+}, true);
+   */
+
+init(20);
+
+//setTimeout(actualizarTimer, 1000);
+

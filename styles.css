@@ -1,0 +1,50 @@
+.error {
+			color: red
+		}
+body {
+			font: 100%/1.4 Calibri,Verdana, Arial, Helvetica, sans-serif; background-color: black;
+
+		}
+
+h2 {
+	color: #154D5B;
+}
+
+#main {
+		margin: 0 auto;
+
+           }
+
+
+.scoreHead{
+            /*background-color: black; color: white; width: 900px; height: 50px;  border: 2px solid black; */
+            background-color: black;
+             color: white; width: 94%; height: 50px;  border: 2px solid black; margin-left: 3%; font-size: 16pt;
+}
+
+.refresh{
+         background-image: url('images/image.png');
+         background-repeat: no-repeat;
+}
+
+.canvas{
+ position: inherited;
+ width: 94%;
+ height: 90%;
+margin-top: 0%;
+margin-left: 3%;
+margin-right: 3%;
+background-image: url('images/groovilicious-animated-stars-night.gif');
+/*background-image: inherited;
+*/
+}
+
+.tabla{
+       width: 100%;
+}
+
+.tabla tr{
+       width: 100%;
+       height: 60px;
+}
+
