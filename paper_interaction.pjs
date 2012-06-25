@@ -109,31 +109,25 @@ function create(shape, x, y, tam, color){
               //var rectangle = new Rectangle(point, size);
               //r = new Path.Rectangle(rectangle);
               r = Path.RegularPolygon(point, 4, tam);
-              r.fillColor = color;
-              r.selectedColor = color;
-              r.tam = tam;
               r.shape = 1;
-              items[items.length] = r;
               break;
         case 2:
               var point = new Point(x, y);
               r = new Path.Circle(point, tam);
-              r.fillColor = color;
-              r.selectedColor = color;
-              r.tam = tam;
               r.shape = 2;
-              items[items.length] = r;
              break;
         case 3:
-             var point = new Point(x, y);
+              var point = new Point(x, y);
               r = new Path.Star(point, 5, tam, tam - (tam/2));
-              r.fillColor = color;
-              r.selectedColor = color;
-              r.tam = tam;
               r.shape = 3;
-              items[items.length] = r;
-             break;
+              break;
       }
+
+      r.fillColor = color;
+      r.selectedColor = color;
+      r.tam = tam;
+      items[items.length] = r;
+
 }
 
 
@@ -225,7 +219,7 @@ function onMouseUp(event) {
 function onMouseDrag(event) {
     // Move the last segment point of the path to the
     // current position of the mouse:
-    var hitResult = project.hitTest(event.point, { fill: true, tolerance: 5});
+    var hitResult = project.hitTest(event.point, { fill: true, tolerance: -1});
     if (hitResult && hitResult.item ) {
 
             create(hitResult.item.shape,event.point.x,event.point.y,hitResult.item.tam,hitResult.item.selectedColor);
@@ -282,7 +276,7 @@ function onFrame(event) {
      var msg = "";
 
     //Si gano
-    if(figuresleft == 0){
+    if(figuresleft < 0){
        msg = "You won!!! Do you wanna play again?";
     }else{
        msg = "LOSERRRR!!! Do you wanna play again?";

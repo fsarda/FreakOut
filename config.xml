@@ -3,10 +3,11 @@
         xmlns:rim="http://www.blackberry.com/ns/widgets"
         version="1.0.0.0">  
     <name>FreakOut</name>
-    <author>WTFTeam</author>
+    <author>Francelice</author>
     <description>Dont stop trying</description>
     <icon src="images/icon.png"/>
     <content src="index.html"/>
+    <feature id="blackberry.ui.menu"/>
     <feature id="blackberry.app"/>
-    <feature id="blackberry.ui.dialog.customAsk" />
+    <feature id="blackberry.app.event" required="true" version="1.0.0.0"/>
 </widget>

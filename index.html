@@ -7,10 +7,13 @@
     <link href="styles.css" rel="stylesheet" type="text/css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="paper.js" type="text/javascript" charset="utf-8"></script>
+    <script src="swipemenu.js"></script>
+    <script src="appMenu.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/paperscript" canvas="paperInteraction" src="paper_interaction.pjs" id="script"></script>
-
-
-
+    <script type="text/javascript">
+    
+    window.addEventListener("load", buildMenuList,  false);
+    </script>
 </head>
 
 <body>
@@ -25,7 +28,7 @@
       </table>
       </div>
       <div id="screen" style="margin-left: auto; margin-right: auto;">
-           <canvas id="paperInteraction" class="canvas" resize style="background-color: white; border: 2px black solid;"></canvas>
+           <canvas id="paperInteraction" class="canvas" resize  style="background-color: white; border: 2px black solid;"></canvas>
       </div>
     </div>
 </body>
