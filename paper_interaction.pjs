@@ -18,6 +18,12 @@ var shakeSound = "sonidos/mp3/metroid.mp3";
 var level = 2;
 var leveltime = 15*60;
 
+var bonusShape = 4;
+var bonusTam = 40;
+var bonusColor = 'white';
+var bonusProb = 1;
+var bonusTime = 180;
+var bonusAumentaTiempo = 1;
 var colorSelected = undefined;
 var shapeSelected = undefined;
 var sizeSelected = undefined;
@@ -28,6 +34,7 @@ var addtime = 120;
 var segtime = 60;
 var shake = 2;
 var items = new Array();
+var itemsBonus = new Array();
 var figuresleft;
 
 var cuadrosArray = [];
@@ -121,12 +128,23 @@ function create(shape, x, y, tam, color){
               r = new Path.Star(point, 5, tam, tam - (tam/2));
               r.shape = 3;
               break;
+        case 4:
+              var point = new Point(x, y);
+              r = new Path.Star(point, 7, tam, tam - (tam/2));
+              r.shape = 4;              
+
+              break;
+
       }
 
       r.fillColor = color;
       r.selectedColor = color;
       r.tam = tam;
       items[items.length] = r;
+
+      if(esBonus(r)){
+        itemsBonus[itemsBonus.length] =  new Array(r,bonusAumentaTiempo);        
+      }
 
 }
 
@@ -196,23 +214,68 @@ function sumarPunto(){
 
 };
 
+function esBonus(hitItem){
+  if(hitItem.shape==bonusShape){
+    return true;
+  }
+}
+function accionBonus(item){
+  
+  for (var i=0; i<itemsBonus.length; í++){
+    
+    if(itemBonus[i][0]==item){
+
+      //veo que tipo de bonus es
+      switch(itemBonus[i][1]){    
+       case bonusAumentaTiempo:
+        playtime += 300;
+        break;
+      }      
+      itemBonus.splice(i,1); //elimino la entrada
+    }
+  }
+
+}
+function apareceBonus(tipo){
+  var x = randomXToY(0, canvas.width-10);
+  var y = randomXToY(0, canvas.height-10);
+  create(bonusShape, x, y, bonusTam, bonusColor)
+
+  
+  
+
+}
+function desapareceBonus(){
+  if(itemsBonus.length > 0){
+    itemsBonus.shift()  
+  }
+  
+}
+
 function onMouseUp(event) {
     var hitResult = project.hitTest(event.point, hitOptions);
     var remove = true;
 
     if (hitResult && hitResult.item ) {
 
-       remove = remove && ((colorSelected!=undefined && hitResult.item.selectedColor==colorSelected) || colorSelected==undefined);
-       remove = remove && ((sizeSelected!=undefined && hitResult.item.tam==sizeSelected) || sizeSelected==undefined);
-       remove = remove && ((shapeSelected!=undefined && hitResult.item.shape==shapeSelected) || shapeSelected==undefined);
-
-       if(remove){
-         var temp = playSound(explodeSound);
-         hitResult.item.remove();
-         sumarPunto();
-         temp.pause();
-
+       if (esBonus(hitResult.item)){
+          hitResult.item.remove();
+          accionBonus(item);
        }
+       else{
+        remove = remove && ((colorSelected!=undefined && hitResult.item.selectedColor==colorSelected) || colorSelected==undefined);
+        remove = remove && ((sizeSelected!=undefined && hitResult.item.tam==sizeSelected) || sizeSelected==undefined);
+        remove = remove && ((shapeSelected!=undefined && hitResult.item.shape==shapeSelected) || shapeSelected==undefined);
+
+
+        if(remove){
+           var temp = playSound(explodeSound);
+          hitResult.item.remove();
+          sumarPunto();
+          temp.pause();
+
+        }
+      }
     }
 }
 
@@ -236,6 +299,7 @@ function clearCanvas(context, canvas) {
   }
 
   items = new Array();
+  itemsBonus = new Array();
   context.clearRect(0, 0, canvas.width, canvas.height);
   var w = canvas.width;
   canvas.width = 1;
@@ -321,7 +385,12 @@ function onFrame(event) {
   if(playtime%restartTime==0){
      rellenar(2);
   }
-
+  if(randomXToY(0, 100)==bonusProb){
+    apareceBonus(bonusAumentaTiempo);
+  }
+  if (playtime%bonusTime==0) {
+     desapareceBonus();
+  }
 }
 
 
